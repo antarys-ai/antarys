@@ -395,7 +395,7 @@ class Client:
 
         if self.debug:
             print(f"Created VectorOperations for collection '{collection_name}'")
-            original_upsert_batch = vector._upsert_batch
+            original_upsert_batch = vector.upsert_batch
 
             async def debug_upsert_batch(batch):
                 """Debug wrapper for _upsert_batch"""
@@ -412,7 +412,7 @@ class Client:
                     print(f"DEBUG: Upsert failed: {str(e)}")
                     raise
 
-            vector._upsert_batch = debug_upsert_batch
+            vector.upsert_batch = debug_upsert_batch
 
         return vector
 

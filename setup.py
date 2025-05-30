@@ -1,11 +1,16 @@
 from antarys import __version__
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as f:
+    description = f.read()
+
 setup(
     name="antarys-client",
     version=__version__,
     url="",
     description="High-performance Python client for Antarys vector database",
+    long_description=description,
+    long_description_content_type="text/markdown",
     author="Antarys",
     author_email="adibmohsin.root@gmail.com",
     packages=find_packages(),
