@@ -5,14 +5,14 @@ with open("README.md", "r") as f:
     description = f.read()
 
 setup(
-    name="antarys-client",
+    name="antarys",
     version=__version__,
-    url="",
+    url="https://github.com/antarys-ai/antarys-python/",
     description="High-performance Python client for Antarys vector database",
     long_description=description,
     long_description_content_type="text/markdown",
     author="Antarys",
-    author_email="adibmohsin.root@gmail.com",
+    author_email="antarys.ai@gmail.com",
     packages=find_packages(),
     package_data={"antarys": ["py.typed"]},
     install_requires=[
