@@ -5,8 +5,10 @@ processing, and dimension validation.
 
 ## Installation
 
+Install via [pip package](https://pypi.org/project/antarys/)
+
 ```bash
-pip install antarys-client
+pip install antarys
 ```
 
 Optional dependencies for accelerated performance:
