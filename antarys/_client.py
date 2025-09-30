@@ -10,6 +10,7 @@ import platform
 import os
 
 from ._vector_ops import VectorOperations
+from ._embed_ops import EmbeddingOperations
 
 
 class Client:
@@ -501,6 +502,26 @@ class Client:
             batch_size=batch_size,
             show_progress=show_progress,
             parallel_workers=parallelism
+        )
+
+    def embedding_operations(self) -> 'EmbeddingOperations':
+        """
+        Get embedding operations interface
+
+        Returns:
+            EmbeddingOperations instance for generating embeddings
+
+        Example:
+            embed_ops = client.embedding_operations()
+            embeddings = await embed_ops.embed(["Hello", "World"])
+        """
+        from ._embed_ops import EmbeddingOperations
+
+        return EmbeddingOperations(
+            host=self.host,
+            client=self.client,
+            request_semaphore=self._request_semaphore,
+            debug=self.debug,
         )
 
     async def batch_insert_with_gpu(self, collection_name: str, records: List[Dict]) -> Dict:

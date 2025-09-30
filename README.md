@@ -88,6 +88,45 @@ info = await client.describe_collection("vectors")
 await client.delete_collection("vectors")
 ```
 
+### Generating Embedding
+
+```python
+import antarys
+
+# Create client
+client = await antarys.create_client("http://localhost:8080")
+
+# Simple embedding
+embedding = await antarys.embed(client, "Hello, World!")
+
+# Multiple texts
+embeddings = await antarys.embed(client, [
+    "First document",
+    "Second document"
+])
+
+# Query embedding (with "query: " prefix)
+query_emb = await antarys.embed_query(client, "What is AI?")
+
+# Document embeddings (with "passage: " prefix)
+doc_embs = await antarys.embed_documents(
+    client,
+    documents=["Python is great", "JavaScript too"],
+    show_progress=True
+)
+
+# Text similarity
+score = await antarys.text_similarity(
+    client,
+    "machine learning",
+    "artificial intelligence"
+)
+
+# Or use the operations interface directly
+embed_ops = client.embedding_operations()
+embeddings = await embed_ops.embed(["Text 1", "Text 2"])
+```
+
 ### Vector Operations
 
 #### Single Vector Upsert
