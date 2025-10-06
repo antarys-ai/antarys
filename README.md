@@ -30,7 +30,7 @@ alternatives, while maintaining superior recall accuracy.
 
 <p align="center">
   <a href="https://youtu.be/ZygixyFXKPE" target="_blank">
-    <img src="https://img.youtube.com/vi/ZygixyFXKPE/maxresdefault.jpg" alt="Watch the demo video" width="600">
+    <img src="./media/thumb.jpg" alt="Watch the demo video" width="100%" style="border-radius:9px">
   </a>
 </p>
 
