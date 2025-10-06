@@ -26,9 +26,7 @@ Antarys is a high-performance vector database engineered for production-scale AI
 for speed, it delivers 1.5-2x faster text query and 6-8x faster image queries compared to leading
 alternatives, while maintaining superior recall accuracy.
 
-<div align="center">
-  <video width="100%" src="https://github.com/antarys-ai/antarys/blob/main/media/intro.mp4" controls></video>
-</div>
+<video width="100%" src="https://github.com/antarys-ai/antarys/raw/refs/heads/main/media/intro.mp4" controls></video>
 
 ## Table of Contents
 
