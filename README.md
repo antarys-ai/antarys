@@ -1,7 +1,17 @@
 # Antarys Vector Database Python Client
 
 Python client for Antarys vector database, optimized for large-scale vector operations with built-in caching, parallel
-processing, and dimension validation.
+processing, and dimension validation. If you are lookng for the node.js
+version [click here](https://github.com/antarys-ai/antarys-node). To read the full report on performance using the
+python client [click here](https://docs.antarys.ai/docs/python/performance).
+
+## Download Antarys DB
+
+Install Antarys with the start script, Antarys is only available on macOS ARM and linux x64
+
+```bash
+curl -fsSL http://antarys.ai/start.sh | bash
+```
 
 ## Installation
 
@@ -412,3 +422,47 @@ info = await client.info()
 collection_info = await client.describe_collection("vectors")
 print(f"Vector count: {collection_info.get('vector_count', 0)}")
 ```
+
+## Performance Benchmarks Summary
+
+Based on text embedding benchmarks conducted
+using [OpenAI compatible DBpedia Dataset](https://huggingface.co/datasets/KShivendu/dbpedia-entities-openai-1M) from
+huggingface, see the [repo here](https://github.com/antarys-ai/benchmark).
+
+### Write
+
+| Database    | Throughput (vectors/sec) | Performance vs Antarys |
+|-------------|--------------------------|------------------------|
+| **Antarys** | **2,017**                | Baseline               |
+| Chroma      | 1,234                    | 1.6x slower            |
+| Qdrant      | 892                      | 2.3x slower            |
+| Milvus      | 445                      | 4.5x slower            |
+
+### Batch Time
+
+| Database    | Avg Batch Time (ms) | P99 Latency (ms) |
+|-------------|---------------------|------------------|
+| **Antarys** | **495.7**           | **570.3**        |
+| Chroma      | 810.4               | 890.2            |
+| Qdrant      | 1,121.6             | 1,456.8          |
+| Milvus      | 2,247.3             | 3,102.5          |
+
+### Query
+
+| Database    | Throughput (queries/sec) | Avg Query Time (ms) | P99 Latency (ms) |
+|-------------|--------------------------|---------------------|------------------|
+| **Antarys** | **602.4**                | **1.66**            | **6.9**          |
+| Chroma      | 340.1                    | 2.94                | 14.2             |
+| Qdrant      | 19.4                     | 51.47               | 186.3            |
+| Milvus      | 4.5                      | 220.46              | 892.1            |
+
+### Recall
+
+Search quality and recall performance comparison:
+
+| Database    | Recall@100 (%) | Recall Standard Deviation |
+|-------------|----------------|---------------------------|
+| **Antarys** | **98.47%**     | **0.0023**                |
+| Chroma      | 97.12%         | 0.0034                    |
+| Qdrant      | 96.83%         | 0.0041                    |
+| Milvus      | 95.67%         | 0.0056                    |
