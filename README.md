@@ -23,12 +23,43 @@
 ---
 
 Antarys is a high-performance vector database engineered for production-scale AI applications. Built from the ground up
-for speed, it delivers **2-4.5x faster write throughput** and **30-130x faster query performance** compared to leading
+for speed, it delivers 1.5-2x faster text query and 6-8x faster image queries compared to leading
 alternatives, while maintaining superior recall accuracy.
 
 <div align="center">
-  <video width="100%" src="./media/intro.mp4" controls></video>
+  <video width="100%" src="https://github.com/antarys-ai/antarys/blob/main/media/intro.mp4" controls></video>
 </div>
+
+## Table of Contents
+
+- [Performance Benchmarks](#performance-benchmarks)
+    - [Write Performance](#write-performance)
+    - [Batch Operations](#batch-operations)
+    - [Query Performance](#query-performance)
+    - [Search Quality & Recall](#search-quality--recall)
+- [Installation](#installation)
+    - [Download Antarys Database](#download-antarys-database)
+    - [Install Python Client](#install-python-client)
+    - [Alternative: Node.js Client](#alternative-nodejs-client)
+- [Quick Start](#quick-start)
+- [Core Features](#core-features)
+    - [Collections](#collections)
+    - [Built-in Text Embeddings](#built-in-text-embeddings)
+    - [Vector Operations](#vector-operations)
+        - [Upsert Vectors](#upsert-vectors)
+        - [Query Vectors](#query-vectors)
+        - [Delete Vectors](#delete-vectors)
+- [Performance Optimization](#performance-optimization)
+    - [Client Configuration](#client-configuration)
+    - [Scale-Based Recommendations](#scale-based-recommendations)
+    - [HNSW Index Tuning](#hnsw-index-tuning)
+- [Advanced Features](#advanced-features)
+    - [Dimension Validation](#dimension-validation)
+    - [Cache Management](#cache-management)
+    - [Health Monitoring](#health-monitoring)
+- [Type Safety](#type-safety)
+- [Resources](#resources)
+- [License](#license)
 
 ## Performance Benchmarks
 
