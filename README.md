@@ -1,31 +1,110 @@
-# Antarys Vector Database Python Client
+# Antarys Vector Database
 
-Python client for Antarys vector database, optimized for large-scale vector operations with built-in caching, parallel
-processing, and dimension validation. If you are lookng for the node.js
-version [click here](https://github.com/antarys-ai/antarys-node). To read the full report on performance using the
-python client [click here](https://docs.antarys.ai/docs/python/performance).
+<div align="center">
 
-## Download Antarys DB
+<picture>
+  <img src="./media/logo.jpg" alt="Antarys Logo" width="60%" />
+</picture>
 
-Install Antarys with the start script, Antarys is only available on macOS ARM and linux x64
+<h3>Blazingly Fast Vector Database for Everyone</h3>
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/antarys-ai/antarys)](https://github.com/antarys-ai/antarys/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python Package](https://img.shields.io/pypi/v/antarys)](https://pypi.org/project/antarys/)
+
+<h3>
+
+[Documentation](https://docs.antarys.ai) | [Discord](https://discord.gg/cvcBA3CgwX) | [Twitter](https://x.com/antarys_ai)
+
+</h3>
+
+</div>
+
+---
+
+Antarys is a high-performance vector database engineered for production-scale AI applications. Built from the ground up
+for speed, it delivers **2-4.5x faster write throughput** and **30-130x faster query performance** compared to leading
+alternatives, while maintaining superior recall accuracy.
+
+<div align="center">
+  <video width="100%" src="./media/intro.mp4" controls></video>
+</div>
+
+## Performance Benchmarks
+
+Benchmarked against leading vector databases using
+the [OpenAI-compatible DBpedia Dataset](https://huggingface.co/datasets/KShivendu/dbpedia-entities-openai-1M) (1M
+vectors, 1536 dimensions).
+
+### Write Performance
+
+| Database    | Throughput (vectors/sec) | Performance vs Antarys |
+|-------------|--------------------------|------------------------|
+| **Antarys** | **2,017**                | **Baseline**           |
+| Chroma      | 1,234                    | 1.6x slower            |
+| Qdrant      | 892                      | 2.3x slower            |
+| Milvus      | 445                      | 4.5x slower            |
+
+### Batch Operations
+
+| Database    | Avg Batch Time (ms) | P99 Latency (ms) |
+|-------------|---------------------|------------------|
+| **Antarys** | **495.7**           | **570.3**        |
+| Chroma      | 810.4               | 890.2            |
+| Qdrant      | 1,121.6             | 1,456.8          |
+| Milvus      | 2,247.3             | 3,102.5          |
+
+### Query Performance
+
+| Database    | Throughput (queries/sec) | Avg Query Time (ms) | P99 Latency (ms) |
+|-------------|--------------------------|---------------------|------------------|
+| **Antarys** | **602.4**                | **1.66**            | **6.9**          |
+| Chroma      | 340.1                    | 2.94                | 14.2             |
+| Qdrant      | 19.4                     | 51.47               | 186.3            |
+| Milvus      | 4.5                      | 220.46              | 892.1            |
+
+### Search Quality & Recall
+
+| Database    | Recall@100 (%) | Standard Deviation |
+|-------------|----------------|--------------------|
+| **Antarys** | **98.47%**     | **0.0023**         |
+| Chroma      | 97.12%         | 0.0034             |
+| Qdrant      | 96.83%         | 0.0041             |
+| Milvus      | 95.67%         | 0.0056             |
+
+[View full benchmark repository →](https://github.com/antarys-ai/benchmark)
+
+## Installation
+
+### Download Antarys Database
+
+Install Antarys with our one-line installer (macOS ARM and Linux x64):
 
 ```bash
 curl -fsSL http://antarys.ai/start.sh | bash
 ```
 
-## Installation
-
-Install via [pip package](https://pypi.org/project/antarys/)
+### Install Python Client
 
 ```bash
 pip install antarys
 ```
 
-Optional dependencies for accelerated performance:
+For accelerated performance, install optional dependencies:
 
 ```bash
+pip install antarys[performance]
+# or individually
 pip install numba lz4
 ```
+
+### Alternative: Node.js Client
+
+```bash
+npm install @antarys/client
+```
+
+[View Node.js documentation →](https://github.com/antarys-ai/antarys-node)
 
 ## Quick Start
 
@@ -35,37 +114,42 @@ from antarys import Client
 
 
 async def main():
-    # Initialize client with performance optimizations
-    client = Client(
-        host="http://localhost:8080",
-        connection_pool_size=100,  # Auto-sized based on CPU count
-        use_http2=True,
-        cache_size=1000,
-        thread_pool_size=16
-    )
+    # Initialize client
+    client = Client(host="http://localhost:8080")
 
     # Create collection
     await client.create_collection(
         name="my_vectors",
         dimensions=1536,
-        enable_hnsw=True,
-        shards=16
+        enable_hnsw=True
     )
 
     vectors = client.vector_operations("my_vectors")
 
     # Upsert vectors
     await vectors.upsert([
-        {"id": "1", "values": [0.1] * 1536, "metadata": {"category": "A"}},
-        {"id": "2", "values": [0.2] * 1536, "metadata": {"category": "B"}}
+        {
+            "id": "doc1",
+            "values": [0.1] * 1536,
+            "metadata": {"category": "AI", "source": "research"}
+        },
+        {
+            "id": "doc2",
+            "values": [0.2] * 1536,
+            "metadata": {"category": "ML", "source": "tutorial"}
+        }
     ])
 
     # Query similar vectors
     results = await vectors.query(
-        vector=[0.1] * 1536,
-        top_k=10,
-        include_metadata=True
+        vector=[0.15] * 1536,
+        top_k=5,
+        include_metadata=True,
+        filter={"category": "AI"}
     )
+
+    for match in results["matches"]:
+        print(f"ID: {match['id']}, Score: {match['score']:.4f}")
 
     await client.close()
 
@@ -73,279 +157,163 @@ async def main():
 asyncio.run(main())
 ```
 
-## Core Concepts
+## Core Features
 
 ### Collections
 
+Create and manage vector collections with optimized parameters:
+
 ```python
-# Create collection with optimized parameters
+# Create collection with HNSW indexing
 await client.create_collection(
-    name="vectors",
-    dimensions=1536,  # Required: vector dimensions
-    enable_hnsw=True,  # Enable HNSW indexing for fast ANN
-    shards=16,  # Parallel processing shards
-    m=16,  # HNSW connectivity parameter
-    ef_construction=200  # HNSW construction quality
+    name="documents",
+    dimensions=1536,
+    enable_hnsw=True,
+    shards=16,
+    m=16,
+    ef_construction=200
 )
 
-# List collections
+# List all collections
 collections = await client.list_collections()
 
-# Get collection info
-info = await client.describe_collection("vectors")
+# Get collection details
+info = await client.describe_collection("documents")
 
 # Delete collection
-await client.delete_collection("vectors")
+await client.delete_collection("documents")
 ```
 
-### Generating Embedding
+### Built-in Text Embeddings
+
+Generate embeddings without external API calls:
 
 ```python
-import antarys
-
-# Create client
-client = await antarys.create_client("http://localhost:8080")
-
 # Simple embedding
-embedding = await antarys.embed(client, "Hello, World!")
+embedding = await client.embed("Hello, World!")
 
-# Multiple texts
-embeddings = await antarys.embed(client, [
+# Batch embeddings
+embeddings = await client.embed([
     "First document",
-    "Second document"
+    "Second document",
+    "Third document"
 ])
 
-# Query embedding (with "query: " prefix)
-query_emb = await antarys.embed_query(client, "What is AI?")
+# Query-optimized embeddings
+query_emb = await client.embed_query("What is artificial intelligence?")
 
-# Document embeddings (with "passage: " prefix)
-doc_embs = await antarys.embed_documents(
-    client,
-    documents=["Python is great", "JavaScript too"],
+# Document embeddings with progress
+doc_embs = await client.embed_documents(
+    documents=["Doc 1", "Doc 2", "Doc 3"],
     show_progress=True
 )
 
-# Text similarity
-score = await antarys.text_similarity(
-    client,
+# Text similarity comparison
+score = await client.text_similarity(
     "machine learning",
     "artificial intelligence"
 )
-
-# Or use the operations interface directly
-embed_ops = client.embedding_operations()
-embeddings = await embed_ops.embed(["Text 1", "Text 2"])
 ```
 
 ### Vector Operations
 
-#### Single Vector Upsert
+#### Upsert Vectors
 
 ```python
 vectors = client.vector_operations("my_collection")
 
-data = [
+# Single vector upsert
+await vectors.upsert([
     {
-        "id": "1",
-        "values": [0.1, 0.2, 0.3],  # Must match collection dimensions
-        "metadata": {"category": "example", "timestamp": 1234567890}
-    },
-    {
-        "id": "2",
-        "values": [0.4, 0.5, 0.6],  # Must match collection dimensions
-        "metadata": {"category": "example", "timestamp": 1234567891}
+        "id": "vec1",
+        "values": [0.1, 0.2, 0.3],
+        "metadata": {"type": "document", "timestamp": 1234567890}
     }
-]
+])
 
-# Upsert single vector
-await vectors.upsert(data)
-```
-
-#### Batch Upsert For Large Scale Data
-
-```python
-# Upload multiple vectors in batches for large scale
+# Batch upsert for large-scale operations
 batch = []
-for i in range(1000):
-    vector_record = {
+for i in range(10000):
+    batch.append({
         "id": f"vector_{i}",
-        "vector": [random.random() for _ in range(1536)],  # Use "vector" key
-        "metadata": {
-            "category": f"category_{i % 5}",
-            "timestamp": int(time.time()),
-            "batch_id": 1
-        }
-    }
-    batch.append(vector_record)
+        "values": [random.random() for _ in range(1536)],
+        "metadata": {"category": f"cat_{i % 5}"}
+    })
 
-result = await vectors.upsert_batch(batch)
+await vectors.upsert_batch(
+    batch,
+    batch_size=5000,
+    parallel_workers=8,
+    show_progress=True
+)
 ```
 
-#### Vector Query
+#### Query Vectors
 
 ```python
-# Single vector similarity search
+# Semantic search with filters
 results = await vectors.query(
     vector=[0.1] * 1536,
     top_k=10,
-    include_values=False,  # Exclude vector values for faster response
-    include_metadata=True,  # Include metadata in results
-    filter={"category": "A"},  # Metadata filtering
-    use_ann=True,  # Use approximate nearest neighbors (HNSW)
-    threshold=0.7  # Minimum similarity filter (0.0 for all results)
+    include_metadata=True,
+    filter={"category": "research"},
+    threshold=0.7,
+    use_ann=True
 )
 
-for match in results["matches"]:
-    print(f"ID: {match['id']}, Score: {match['score']}")
-```
-
-#### Batch Query
-
-```python
-# Multiple vector queries in parallel
+# Batch queries
 query_vectors = [[0.1] * 1536, [0.2] * 1536, [0.3] * 1536]
-
 batch_results = await vectors.batch_query(
     vectors=query_vectors,
     top_k=5,
-    include_metadata=True,
-    validate_dimensions=True
+    include_metadata=True
 )
 
-for i, result in enumerate(batch_results["results"]):
-    print(f"Query {i}: {len(result['matches'])} matches")
+# Get specific vector
+vector_data = await vectors.get_vector("vec1")
+
+# Count vectors
+count = await vectors.count_vectors()
 ```
 
 #### Delete Vectors
 
 ```python
-# Delete vectors by ID
-await vectors.delete(["vector_1", "vector_2", "vector_3"])
-
-# Get vector by ID
-vector_data = await vectors.get_vector("vector_1")
-
-# Count vectors in collection
-count = await vectors.count_vectors()
+# Delete by IDs
+await vectors.delete(["vec1", "vec2", "vec3"])
 ```
 
 ## Performance Optimization
 
 ### Client Configuration
 
+Configure the client for optimal performance based on your workload:
+
 ```python
 client = Client(
     host="http://localhost:8080",
 
-    # Connection Pool Optimization
-    connection_pool_size=100,  # High concurrency (auto: CPU_COUNT * 5)
-    timeout=120,  # Extended timeout for large operations
+    # Connection pooling
+    connection_pool_size=100,
 
-    # HTTP/2 and Compression
-    use_http2=True,  # Enable HTTP/2 multiplexing
-    compression=True,  # Enable response compression
+    # HTTP/2 and compression
+    use_http2=True,
+    compression=True,
 
-    # Caching Configuration
-    cache_size=1000,  # Client-side query cache
-    cache_ttl=300,  # Cache TTL in seconds
+    # Client-side caching
+    cache_size=1000,
+    cache_ttl=300,
 
-    # Threading and Parallelism
-    thread_pool_size=16,  # CPU-bound operations (auto: CPU_COUNT * 2)
+    # Threading
+    thread_pool_size=16,
 
-    # Retry Configuration
-    retry_attempts=5,  # Network resilience
-
-    # Debug Mode
-    debug=True  # Performance monitoring
+    # Reliability
+    retry_attempts=5,
+    timeout=120
 )
 ```
 
-### Batch Operation Tuning
-
-```python
-# Optimal batch upsert parameters
-await vectors.upsert(
-    vectors=large_dataset,
-    batch_size=5000,  # Optimal for network efficiency
-    parallel_workers=8,  # Match server capability
-    validate_dimensions=True,  # Prevent dimension errors
-    show_progress=True
-)
-
-# High-throughput query configuration
-results = await vectors.query(
-    vector=query_vector,
-    top_k=100,
-    include_values=False,  # Reduce response size
-    include_metadata=True,
-    use_ann=True,  # Fast approximate search
-    ef_search=200,  # Higher quality (vs speed)
-    skip_cache=False  # Leverage cache
-)
-```
-
-### Server-Side Optimization
-
-#### HNSW Index Parameters
-
-```python
-await client.create_collection(
-    name="high_performance",
-    dimensions=1536,
-    enable_hnsw=True,
-
-    # HNSW Tuning
-    m=16,  # Connectivity (16-64 for high recall)
-    ef_construction=200,  # Graph construction quality (200-800)
-    shards=32,  # Parallel processing (match CPU cores)
-)
-
-# Query-time HNSW parameters
-results = await vectors.query(
-    vector=query_vector,
-    ef_search=200,  # Search quality (100-800) | Higher means accuracy over speed and ram consumption 
-    use_ann=True  # Enable HNSW acceleration
-)
-```
-
-#### Memory and Resource Management
-
-```python
-# Force commit for persistence
-await client.commit()
-
-# Clear client-side caches
-await client.clear_cache()
-await vectors.clear_cache()
-
-# Proper resource cleanup
-await client.close()
-```
-
-## Advanced Features
-
-### Dimension Validation
-
-```python
-# Automatic dimension validation
-is_valid = await vectors.validate_vector_dimensions([0.1] * 1536)
-
-# Get collection dimensions
-dims = await vectors.get_collection_dimensions()
-```
-
-### Cache Performance Monitoring
-
-```python
-# Get cache statistics
-stats = vectors.get_cache_stats()
-print(f"Cache hit rate: {stats['hit_rate']:.2%}")
-print(f"Cache size: {stats['cache_size']}")
-```
-
-## Performance Benchmarks
-
-### Recommended Settings by Scale
+### Scale-Based Recommendations
 
 #### Small Scale (< 1M vectors)
 
@@ -356,6 +324,7 @@ client = Client(
     thread_pool_size=4
 )
 
+# Batch operations
 batch_size = 1000
 parallel_workers = 2
 ```
@@ -369,6 +338,7 @@ client = Client(
     thread_pool_size=8
 )
 
+# Batch operations
 batch_size = 3000
 parallel_workers = 4
 ```
@@ -382,34 +352,59 @@ client = Client(
     thread_pool_size=16
 )
 
+# Batch operations
 batch_size = 5000
 parallel_workers = 8
 ```
 
-## Data Types
+### HNSW Index Tuning
 
-The client uses strongly typed interfaces:
+Optimize HNSW parameters for your accuracy/speed requirements:
 
 ```python
-from antarys.types import VectorRecord, SearchResult, SearchParams
+# Collection creation
+await client.create_collection(
+    name="optimized",
+    dimensions=1536,
+    enable_hnsw=True,
+    m=16,  # Connectivity (16-64 for high recall)
+    ef_construction=200,  # Construction quality (200-800)
+    shards=32  # Parallel processing
+)
 
-# Type-safe vector record
-record: VectorRecord = {
-    "id": "example",
-    "values": [0.1, 0.2, 0.3],
-    "metadata": {"key": "value"}
-}
-
-# Search parameters
-params = SearchParams(
-    vector=[0.1] * 1536,
-    top_k=10,
-    include_metadata=True,
-    threshold=0.8
+# Query-time tuning
+results = await vectors.query(
+    vector=query_vector,
+    ef_search=200,  # Search quality (100-800)
+    use_ann=True  # Enable HNSW acceleration
 )
 ```
 
-## Health Monitoring
+## Advanced Features
+
+### Dimension Validation
+
+```python
+# Validate vector dimensions
+is_valid = await vectors.validate_vector_dimensions([0.1] * 1536)
+
+# Get collection dimensions
+dims = await vectors.get_collection_dimensions()
+```
+
+### Cache Management
+
+```python
+# Get cache statistics
+stats = vectors.get_cache_stats()
+print(f"Cache hit rate: {stats['hit_rate']:.2%}")
+
+# Clear caches
+await client.clear_cache()
+await vectors.clear_cache()
+```
+
+### Health Monitoring
 
 ```python
 # Check server health
@@ -423,46 +418,50 @@ collection_info = await client.describe_collection("vectors")
 print(f"Vector count: {collection_info.get('vector_count', 0)}")
 ```
 
-## Performance Benchmarks Summary
+## Type Safety
 
-Based on text embedding benchmarks conducted
-using [OpenAI compatible DBpedia Dataset](https://huggingface.co/datasets/KShivendu/dbpedia-entities-openai-1M) from
-huggingface, see the [repo here](https://github.com/antarys-ai/benchmark).
+Antarys includes comprehensive type definitions:
 
-### Write
+```python
+from antarys.types import VectorRecord, SearchResult, SearchParams
 
-| Database    | Throughput (vectors/sec) | Performance vs Antarys |
-|-------------|--------------------------|------------------------|
-| **Antarys** | **2,017**                | Baseline               |
-| Chroma      | 1,234                    | 1.6x slower            |
-| Qdrant      | 892                      | 2.3x slower            |
-| Milvus      | 445                      | 4.5x slower            |
+# Type-safe vector record
+record: VectorRecord = {
+    "id": "example",
+    "values": [0.1, 0.2, 0.3],
+    "metadata": {"key": "value"}
+}
 
-### Batch Time
+# Type-safe search parameters
+params = SearchParams(
+    vector=[0.1] * 1536,
+    top_k=10,
+    include_metadata=True,
+    threshold=0.8
+)
+```
 
-| Database    | Avg Batch Time (ms) | P99 Latency (ms) |
-|-------------|---------------------|------------------|
-| **Antarys** | **495.7**           | **570.3**        |
-| Chroma      | 810.4               | 890.2            |
-| Qdrant      | 1,121.6             | 1,456.8          |
-| Milvus      | 2,247.3             | 3,102.5          |
+## Resources
 
-### Query
+- **[Full Documentation](https://docs.antarys.ai)** - Complete API reference and guides
+- **[Performance Report](https://docs.antarys.ai/docs/python/performance)** - Detailed benchmark analysis
+- **[Benchmark Repository](https://github.com/antarys-ai/benchmark)** - Reproduce performance tests
+- **[Node.js Client](https://github.com/antarys-ai/antarys-node)** - TypeScript/JavaScript SDK
 
-| Database    | Throughput (queries/sec) | Avg Query Time (ms) | P99 Latency (ms) |
-|-------------|--------------------------|---------------------|------------------|
-| **Antarys** | **602.4**                | **1.66**            | **6.9**          |
-| Chroma      | 340.1                    | 2.94                | 14.2             |
-| Qdrant      | 19.4                     | 51.47               | 186.3            |
-| Milvus      | 4.5                      | 220.46              | 892.1            |
+## License
 
-### Recall
+Antarys is released under the [MIT License](LICENSE).
 
-Search quality and recall performance comparison:
+## Community
 
-| Database    | Recall@100 (%) | Recall Standard Deviation |
-|-------------|----------------|---------------------------|
-| **Antarys** | **98.47%**     | **0.0023**                |
-| Chroma      | 97.12%         | 0.0034                    |
-| Qdrant      | 96.83%         | 0.0041                    |
-| Milvus      | 95.67%         | 0.0056                    |
+- **[Discord](https://discord.gg/cvcBA3CgwX)** - Get help and discuss features
+- **[GitHub Issues](https://github.com/antarys-ai/antarys/issues)** - Report bugs or request features
+- **[Twitter](https://x.com/antarys_ai)** - Follow for updates
+
+---
+
+<div align="center">
+
+⭐ **Star this repo to help more developers discover Antarys!**
+
+</div>
