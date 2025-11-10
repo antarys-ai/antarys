@@ -1,5 +1,16 @@
 ## [Antarys](https://antarys.ai)
 
+<div align="center">
+  <img src="./media/antarys.jpg" alt="Antarys" width="400"/>
+  
+  # Antarys
+  
+  **A hackable vector database for on-demand scaling**
+  
+  [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+  
+</div>
+
 High-Performance Embeddable Vector Database. [WIP]
 
 ## Shards
