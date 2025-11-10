@@ -1,0 +1,15 @@
+*.bin
+*.json
+*.prof
+*.npy
+*.DS_Store
+*.jsonl
+
+*metadata
+*.mem
+*.vlog
+
+*build
+*data
+
+./api/comp.sh
