@@ -220,3 +220,19 @@ Edges:     [1, 2, 0, 2, 0, 1]                // All edges flattened
 EdgeStart: [0, 2, 4]                         // Node 0 starts at 0, Node 1 at 2, etc
 EdgeCount: [2, 2, 2]                         // Each node has 2 edges
 ```
+
+## Planned Features
+
+The following features are in development:
+
+- Contiguous Arrays Architecture
+- Filtered search and payload indexing (HTTP API)
+- Distributed architecture with coordination
+- gRPC support for high-performance RPC
+- Comprehensive observability and monitoring
+- Advanced resource management
+- Hybrid and multi-modal search capabilities
+- Multi-tenancy and security features
+- Enhanced query optimization
+- Advanced collection management
+- Backup and recovery improvements
